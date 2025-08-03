@@ -10,9 +10,22 @@
 		403664A62E3C1C3900C67E30 /* iRL.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = iRL.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		403664D52E3C53EE00C67E30 /* Exceptions for "iRL" folder in "iRL" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 403664A52E3C1C3900C67E30 /* iRL */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		403664A82E3C1C3900C67E30 /* iRL */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				403664D52E3C53EE00C67E30 /* Exceptions for "iRL" folder in "iRL" target */,
+			);
 			path = iRL;
 			sourceTree = "<group>";
 		};

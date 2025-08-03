@@ -1,0 +1,116 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# iRL Product Requirements Document (PRD)
+
+## Purpose
+iRL is a social app designed to make spontaneous conversation in public spaces feel more natural, safe, and inviting. It supports low-pressure, real-life social interactions by giving users subtle ways to signal openness to connection and conversation.
+
+## Problem Statement
+Despite being physically surrounded by others in public spaces like coffee shops, libraries, or parks, many people struggle to initiate casual conversations. Social norms, fear of rejection, and anxiety often prevent people from making the first move. iRL provides a soft, opt-in signal for social availability, helping users express openness to conversation in a lightweight, respectful way.
+
+## Target Users
+- Students seeking spontaneous peer connections on campus.
+- Remote workers wanting casual companionship in public spaces.
+- Everyday people (café regulars, introverts, solo travelers) who want to signal openness to conversation.
+  
+## User Stories
+- As a remote worker, I want to signal openness to casual chat at coffee shops to feel less isolated.
+- As a café owner, I want to identify customers open to socializing to foster a welcoming environment.
+- As a solo traveler, I want to meet locals open to sharing stories.
+- As a student, I want to discover people nearby with similar interests.
+- As an introvert, I want to signal openness without initiating conversation myself.
+
+## MVP Functional Requirements
+- User Profile Creation: name, image, interests, favorite “third places”, communication intent.
+- Real-Time Status: set an image and mood blurb manually or via defaults.
+- Mutual Visibility: see only users who are also open to connection.
+- Location-Based Discovery: profiles visible within a 5-mile radius.
+- Auto Location Off: disables sharing when user leaves radius.
+
+## MVP Non-Functional Requirements
+- Privacy First: no sharing without explicit opt-in.
+- Dark Mode Support.
+- Low Latency Location Updates.
+- Scalability: support hundreds of concurrent users nearby.
+- Battery Efficiency: minimize background GPS usage.
+
+## Core Features & User Flows
+### Signup Flow
+- Multi-step onboarding: name, age verification, interests, places.
+- Camera permission & profile picture upload.
+- Location permission & saved frequent places.
+- Signal toggle introduction with auto-disable rules.
+- Notification permission request.
+
+### Home / Landing Screen
+- Logo, profile phrase display.
+- Feed of nearby places with filters.
+- Signal toggle with location checks and prompts.
+
+### Active Mode (Map View)
+- User markers with clustering.
+- Dynamic zoom & pan.
+- Profile details on marker tap.
+- Auto-disable signal outside 1-mile radius.
+
+### Nearby View
+- Blurred map & restricted profiles when outside public locations.
+
+### Notifications
+- Status on/off alerts.
+- Location exit auto-disable alerts.
+
+### Profile & Settings
+- Edit profile, phrase, interests, saved locations.
+- Manage notifications and location permissions.
+- Logout and privacy options.
+
+## Platform & Tech Stack
+- Frontend: React Native + Expo (iOS & Android cross-platform)
+- Styling: TailwindCSS (via NativeWind or custom)
+- Location & Maps: Expo Location API + React Native Maps
+- State Management: React Context or hooks
+- Notifications: Expo Notifications (optional)
+- Authentication: None initially (profiles in-memory)
+- Backend: None initially
+
+## Privacy & Security
+- Minimal data collection: only name, picture, interests, optional location.
+- Location shared only when opted in; auto-disabled when leaving area.
+- No long-term location storage.
+- Mutual visibility only among opted-in users.
+- Manual pause and block/report features.
+- Encrypted data transmission (HTTPS).
+
+## Metrics & Success Criteria
+- User engagement rates in enabling “visible” status.
+- Number of organic connections made via the app.
+- Battery usage efficiency during app activity.
+- User retention and feedback on safety and ease of use.
+
+## Proposed File Structure
+/iRL
+├── /assets # Images, icons, fonts
+├── /components # Reusable React Native components
+│ ├── Button.tsx
+│ ├── MapView.tsx
+│ └── ProfileCard.tsx
+├── /contexts # React Context for state management
+│ └── UserContext.tsx
+├── /screens # Screens by user flow
+│ ├── Onboarding/
+│ │ ├── NameInput.tsx
+│ │ ├── InterestsSelection.tsx
+│ │ └── LocationSetup.tsx
+│ ├── Home.tsx
+│ ├── ActiveModeMap.tsx
+│ └── ProfileSettings.tsx
+├── /services # API calls, location services
+│ └── LocationService.ts
+├── /styles # Tailwind config, global styles
+├── App.tsx # Root app component
+├── app.json # Expo config
+└── package.json # Dependencies
