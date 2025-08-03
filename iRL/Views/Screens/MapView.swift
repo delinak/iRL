@@ -78,8 +78,8 @@ struct NearbyActiveView: View {
                                 let baseCenter = appState.locationService.currentLocation?.coordinate ?? 
                                                CLLocationCoordinate2D(latitude: 37.7749, longitude: -122.4194)
                                 
-                                let deltaLat = -value.translation.y / 10000
-                                let deltaLng = value.translation.x / 10000
+                                let deltaLat = -value.translation.height / 10000
+                                let deltaLng = value.translation.width / 10000
                                 
                                 let newLat = max(baseCenter.latitude - maxOffset, 
                                                min(baseCenter.latitude + maxOffset, 
@@ -113,14 +113,11 @@ struct NearbyActiveView: View {
                 // Zoom Controls (Google Maps style) - Left center side
                 VStack {
                     Spacer()
-                    HStack {
-                        googleMapsZoomControls
-                            .padding(.leading, 20)
-                        Spacer()
-                    }
+                    googleMapsZoomControls
+                        .padding(.leading, 10)
                     Spacer()
-                    .padding(.bottom, showingProfileOnMap ? 220 : 100)
                 }
+                .padding(.bottom, showingProfileOnMap ? 220 : 100)
                 
                 // Zoom Level Indicator
                 VStack {
@@ -193,7 +190,7 @@ struct NearbyActiveView: View {
                 .padding(.horizontal, 12)
                 .padding(.vertical, 6)
                 .background(
-                    RoundedRectangle(cornerRadius, 12)
+                    RoundedRectangle(cornerRadius: 12)
                         .fill(Color.green.opacity(0.1))
                         .overlay(
                             RoundedRectangle(cornerRadius: 12)
@@ -243,36 +240,35 @@ struct NearbyActiveView: View {
     
     // MARK: - Google Maps Style Zoom Controls
     private var googleMapsZoomControls: some View {
-        VStack(spacing: 1) {
-            Button(action: zoomIn) {
-                Image(systemName: "plus")
-                    .font(.title2)
-                    .foregroundColor(.primary)
-                    .frame(width: 44, height: 44)
-                    .background(Color(.systemBackground))
-            }
-            .disabled(zoomLevel <= maxZoomIn)
-            
-            Rectangle()
-                .fill(Color(.systemGray4))
-                .frame(height: 1)
-            
-            Button(action: zoomOut) {
-                Image(systemName: "minus")
-                    .font(.title2)
-                    .foregroundColor(.primary)
-                    .frame(width: 44, height: 44)
-                    .background(Color(.systemBackground))
-            }
-            .disabled(zoomLevel >= maxZoomOut)
-        }
-        .clipShape(RoundedRectangle(cornerRadius: 8))
-        .shadow(color: Color.black.opacity(0.15), radius: 4, x: 0, y: 2)
-        
-        // Center location button below
         VStack(spacing: 8) {
-            Spacer().frame(height: 8)
+            // Zoom controls
+            VStack(spacing: 1) {
+                Button(action: zoomIn) {
+                    Image(systemName: "plus")
+                        .font(.title2)
+                        .foregroundColor(.primary)
+                        .frame(width: 44, height: 44)
+                        .background(Color(.systemBackground))
+                }
+                .disabled(zoomLevel <= maxZoomIn)
+                
+                Rectangle()
+                    .fill(Color(.systemGray4))
+                    .frame(height: 1)
+                
+                Button(action: zoomOut) {
+                    Image(systemName: "minus")
+                        .font(.title2)
+                        .foregroundColor(.primary)
+                        .frame(width: 44, height: 44)
+                        .background(Color(.systemBackground))
+                }
+                .disabled(zoomLevel >= maxZoomOut)
+            }
+            .clipShape(RoundedRectangle(cornerRadius: 8))
+            .shadow(color: Color.black.opacity(0.15), radius: 4, x: 0, y: 2)
             
+            // Center location button
             Button(action: centerOnCurrentLocation) {
                 Image(systemName: "location.fill")
                     .font(.title2)
@@ -429,7 +425,7 @@ struct NearbyActiveView: View {
     // MARK: - Helper Functions
     private func updateClusters() {
         // Force refresh of clusters based on new zoom level
-        objectWillChange.send()
+        // This will be handled by the computed property
     }
     
     private func zoomIn() {
@@ -585,7 +581,7 @@ struct UserClusterDot: View {
                         .padding(.horizontal, 6)
                         .padding(.vertical, 2)
                         .background(
-                            RoundedRectangle(cornerRadius, 8)
+                            RoundedRectangle(cornerRadius: 8)
                                 .fill(Color(.systemBackground).opacity(0.9))
                                 .shadow(color: Color.black.opacity(0.1), radius: 2, x: 0, y: 1)
                         )
@@ -724,7 +720,7 @@ struct ProfileMapOverlay: View {
         .gesture(
             DragGesture()
                 .onEnded { value in
-                    if value.translation.y > 100 {
+                    if value.translation.height > 100 {
                         onDismiss()
                     }
                 }
@@ -840,5 +836,155 @@ struct UserCluster: Identifiable {
         let avgLng = validLocations.map { $0.longitude }.reduce(0, +) / Double(validLocations.count)
         
         return CLLocationCoordinate2D(latitude: avgLat, longitude: avgLng)
+    }
+}
+
+// MARK: - User Detail View
+struct UserDetailView: View {
+    let user: User
+    @Environment(\.dismiss) private var dismiss
+    
+    var body: some View {
+        NavigationView {
+            ScrollView {
+                VStack(spacing: 24) {
+                    // Profile header
+                    VStack(spacing: 16) {
+                        // Profile image
+                        Group {
+                            if let imageData = user.profileImage,
+                               let uiImage = UIImage(data: imageData) {
+                                Image(uiImage: uiImage)
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fill)
+                            } else {
+                                Circle()
+                                    .fill(Color.green.opacity(0.3))
+                                    .overlay(
+                                        Text(String(user.name.prefix(1)))
+                                            .font(.title)
+                                            .fontWeight(.bold)
+                                            .foregroundColor(.green)
+                                    )
+                            }
+                        }
+                        .frame(width: 100, height: 100)
+                        .clipShape(Circle())
+                        .overlay(
+                            Circle()
+                                .stroke(Color.green, lineWidth: 3)
+                        )
+                        
+                        VStack(spacing: 8) {
+                            Text(user.displayName)
+                                .font(.title2)
+                                .fontWeight(.bold)
+                            
+                            Text(user.communicationIntent)
+                                .font(.body)
+                                .foregroundColor(.secondary)
+                                .multilineTextAlignment(.center)
+                            
+                            if !user.currentMood.isEmpty {
+                                HStack(spacing: 4) {
+                                    Image(systemName: "heart.fill")
+                                        .foregroundColor(.orange)
+                                    
+                                    Text(user.currentMood)
+                                        .font(.body)
+                                        .foregroundColor(.orange)
+                                }
+                            }
+                        }
+                    }
+                    .padding()
+                    .background(
+                        RoundedRectangle(cornerRadius: 16)
+                            .fill(Color(.systemBackground))
+                            .shadow(color: Color.black.opacity(0.1), radius: 8, x: 0, y: 4)
+                    )
+                    
+                    // Interests
+                    if !user.interests.isEmpty {
+                        VStack(alignment: .leading, spacing: 12) {
+                            Text("Interests")
+                                .font(.headline)
+                                .fontWeight(.semibold)
+                            
+                            LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 2), spacing: 8) {
+                                ForEach(user.interests, id: \.self) { interest in
+                                    Text(interest)
+                                        .font(.caption)
+                                        .foregroundColor(.orange)
+                                        .padding(.horizontal, 12)
+                                        .padding(.vertical, 6)
+                                        .background(
+                                            Capsule()
+                                                .fill(Color.orange.opacity(0.1))
+                                        )
+                                }
+                            }
+                        }
+                        .padding()
+                        .background(
+                            RoundedRectangle(cornerRadius: 16)
+                                .fill(Color(.systemBackground))
+                                .shadow(color: Color.black.opacity(0.1), radius: 8, x: 0, y: 4)
+                        )
+                    }
+                    
+                    // Favorite places
+                    if !user.favoritePlaces.isEmpty {
+                        VStack(alignment: .leading, spacing: 12) {
+                            Text("Favorite Places")
+                                .font(.headline)
+                                .fontWeight(.semibold)
+                            
+                            VStack(spacing: 8) {
+                                ForEach(user.favoritePlaces, id: \.self) { place in
+                                    HStack {
+                                        Image(systemName: "mappin.circle.fill")
+                                            .foregroundColor(.orange)
+                                        
+                                        Text(place)
+                                            .font(.body)
+                                        
+                                        Spacer()
+                                    }
+                                    .padding(.vertical, 4)
+                                }
+                            }
+                        }
+                        .padding()
+                        .background(
+                            RoundedRectangle(cornerRadius: 16)
+                                .fill(Color(.systemBackground))
+                                .shadow(color: Color.black.opacity(0.1), radius: 8, x: 0, y: 4)
+                        )
+                    }
+                }
+                .padding()
+            }
+            .background(
+                LinearGradient(
+                    colors: [Color.orange.opacity(0.1), Color.green.opacity(0.1)],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+            )
+            .navigationTitle("Profile")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button(action: {
+                        dismiss()
+                    }) {
+                        Image(systemName: "xmark.circle.fill")
+                            .font(.title2)
+                            .foregroundColor(.secondary)
+                    }
+                }
+            }
+        }
     }
 }
